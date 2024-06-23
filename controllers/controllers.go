@@ -6,11 +6,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/codeabuu/ecom/database"
 	"github.com/codeabuu/ecom/models"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+var UserCollection *mongo.Collection = database.UserData(database.Client, "Users")
+var ProductCollection *mongo.Collection = database.ProductData(database.Client, "Products")
+var Validate = validator.New()
 
 func HashPassword(password string) string {
 
