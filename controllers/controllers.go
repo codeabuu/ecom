@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	generate "github.com/codeabuu/ecom/tokens"
 	"github.com/codeabuu/ecom/database"
 	"github.com/codeabuu/ecom/models"
 	"github.com/gin-gonic/gin"
