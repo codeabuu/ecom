@@ -18,9 +18,11 @@
 Make sure that your MongoDB username, password &URI is set in your .env file at the root directory of this project.
 
 You can start the project with below commands:
+
 **1. docker-compose up -d**
 
 **2. go run main.go**
 
 ## API Tests
-
+You can use postman for API Endpoints tests.
+Here are the api endpoints: click [here](https://docs.google.com/document/d/1UEeHIvhaaA9IXMhYLDiJtD_8RNBqZmoh3kJ09GH3DrY/edit?usp=sharing)
