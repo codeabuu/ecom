@@ -4,14 +4,22 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func DBSet() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27027"))
+	godotenv.Load()
+	uri := os.Getenv("MONGODB_URI")
+	if uri == "" {
+		log.Fatal("MONGODB_URI environment variable not set in .env file")
+	}
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,6 +35,7 @@ func DBSet() *mongo.Client {
 		return nil
 	}
 	fmt.Println("connection to mongodb was successful")
+	return client
 }
 
 var Client *mongo.Client = DBSet()

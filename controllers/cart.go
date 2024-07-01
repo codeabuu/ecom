@@ -27,7 +27,7 @@ func NewApplication(prodCollection, userCollection *mongo.Collection) *Applicati
 	}
 }
 
-func (app *Application) AddToCart() gin.Handler {
+func (app *Application) AddToCart() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productQueryID := c.Query("id")
 		if productQueryID == "" {
@@ -51,7 +51,7 @@ func (app *Application) AddToCart() gin.Handler {
 			return
 		}
 
-		var ctx, cancel = Context.WithTimeout(context.Background(), 5*time.Second)
+		var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		err = database.AddProductToCart(ctx, app.prodCollection, app.userCollection, productID, userQueryID)
@@ -62,7 +62,7 @@ func (app *Application) AddToCart() gin.Handler {
 	}
 }
 
-func RemoveItem(app *Application) gin.HandlerFunc {
+func (app *Application) RemoveItem() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		productQueryID := c.Query("id")
 		if productQueryID == "" {
@@ -86,7 +86,7 @@ func RemoveItem(app *Application) gin.HandlerFunc {
 			return
 		}
 
-		var ctx, cancel = Context.WithTimeout(context.Background(), 5*time.Second)
+		var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		err = database.RemoveCartItem(ctx, app.prodCollection, app.userCollection, productID, userQueryID)
@@ -95,6 +95,7 @@ func RemoveItem(app *Application) gin.HandlerFunc {
 			return
 		}
 		c.IndentedJSON(200, "succesfully removed from cart")
+	}
 }
 
 func GetItemFromCart() gin.HandlerFunc {
@@ -131,6 +132,7 @@ func GetItemFromCart() gin.HandlerFunc {
 		if err = pointcursor.All(ctx, &listing); err != nil {
 			log.Println(err)
 			c.AbortWithStatus(http.StatusInternalServerError)
+
 		}
 		for _, json := range listing {
 			c.IndentedJSON(200, json["total"])
@@ -140,9 +142,9 @@ func GetItemFromCart() gin.HandlerFunc {
 	}
 }
 
-func (app *Applicaton) BuyFromCart() gin.HandlerFunc {
+func (app *Application) BuyFromCart() gin.HandlerFunc {
 
-	return func (c *gin.Context)  {
+	return func(c *gin.Context) {
 		userQueryID := c.Query("id")
 
 		if userQueryID == "" {
@@ -153,7 +155,7 @@ func (app *Applicaton) BuyFromCart() gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
-		err := database.BuyItemFromCart(cyx, app.userCollection, userQueryID)
+		err := database.BuyItemFromCart(ctx, app.userCollection, userQueryID)
 		if err != nil {
 			c.IndentedJSON(http.StatusInternalServerError, err)
 		}
@@ -186,7 +188,7 @@ func (app *Application) InstantBuy() gin.HandlerFunc {
 			return
 		}
 
-		var ctx, cancel = Context.WithTimeout(context.Background(), 5*time.Second)
+		var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		err = database.InstantBuy(ctx, app.prodCollection, app.userCollection, productID, userQueryID)

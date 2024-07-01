@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	generate "github.com/codeabuu/ecom/tokens"
 	"github.com/codeabuu/ecom/database"
 	"github.com/codeabuu/ecom/models"
+	generate "github.com/codeabuu/ecom/tokens"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
 	"go.mongodb.org/mongo-driver/bson"
@@ -66,7 +66,7 @@ func Signup() gin.HandlerFunc {
 		if count > 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "user already exists"})
 		}
-		count, err := UserCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
+		count, err = UserCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
 		defer cancel()
 
 		if err != nil {
@@ -84,7 +84,7 @@ func Signup() gin.HandlerFunc {
 		user.Created_At, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.Updated_At, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		user.ID = primitive.NewObjectID()
-		user.User_ID = &user.ID.Hex()
+		user.User_ID = user.ID.Hex()
 		token, refreshtoken, _ := generate.TokenGenerator(*user.Email, *user.First_Name, *user.Last_Name, user.User_ID)
 		user.Token = &token
 		user.Refresh_Token = &refreshtoken
@@ -99,7 +99,7 @@ func Signup() gin.HandlerFunc {
 		}
 		defer cancel()
 
-		c.JSON(http.StatusCreated, "Successfully signed to db")
+		c.JSON(http.StatusCreated, "Successfully signed up")
 	}
 }
 
@@ -109,6 +109,7 @@ func Login() gin.HandlerFunc {
 		defer cancel()
 
 		var user models.User
+		var founduser models.User
 		if err := c.BindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err})
 			return
@@ -136,8 +137,24 @@ func Login() gin.HandlerFunc {
 	}
 }
 
-func productViewerAdmin() gin.HandlerFunc {
-
+func ProductViewerAdmin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		var products models.Product
+		defer cancel()
+		if err := c.BindJSON(&products); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		products.Product_ID = primitive.NewObjectID()
+		_, anyerr := ProductCollection.InsertOne(ctx, products)
+		if anyerr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Not created"})
+			return
+		}
+		defer cancel()
+		c.JSON(http.StatusOK, "Succesfully added product admin!")
+	}
 }
 
 func SearchProduct() gin.HandlerFunc {
@@ -151,14 +168,14 @@ func SearchProduct() gin.HandlerFunc {
 			c.IndentedJSON(http.StatusInternalServerError, "something is wrong")
 			return
 		}
-		err := cursor.All(ctx, &productlist)
+		err = cursor.All(ctx, &productlist)
 
 		if err != nil {
 			log.Println(err)
-			c.AbortWithStatus(http.StatusInternalServerError, "couldn't get all products")
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		defer cursor.Close()
+		defer cursor.Close(ctx)
 
 		if err := cursor.Err(); err != nil {
 			log.Println(err)
@@ -171,21 +188,21 @@ func SearchProduct() gin.HandlerFunc {
 }
 
 func SearchProductByQuery() gin.HandlerFunc {
-	return func (c *gin.Context) {
+	return func(c *gin.Context) {
 		var searchproducts []models.Product
 		queryParam := c.Query("name")
 
 		if queryParam == "" {
 			log.Println("query is empty")
 			c.Header("content-Type", "application/json")
-			c.JSON(http.StatusNotFound, gin.H{"error":"Invalid search index"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Invalid search index"})
 			c.Abort()
 			return
 		}
-		var ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 
-		searchquerydb, err := ProductCollection.Find(ctx, bson.M{"product_name": bson.M{"$regex":queryParam}})
+		searchquerydb, err := ProductCollection.Find(ctx, bson.M{"product_name": bson.M{"$regex": queryParam}})
 		if err != nil {
 			c.IndentedJSON(404, "something went wrong when fetching the data")
 			return
@@ -196,7 +213,7 @@ func SearchProductByQuery() gin.HandlerFunc {
 			c.IndentedJSON(400, "invalid")
 			return
 		}
-		defer searchquerydb.Close()
+		defer searchquerydb.Close(ctx)
 
 		if err := searchquerydb.Err(); err != nil {
 			log.Println(err)
