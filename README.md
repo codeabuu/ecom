@@ -25,4 +25,5 @@ You can start the project with below commands:
 
 ## API Tests
 You can use postman for API Endpoints tests.
-Here are the api endpoints: click [here](https://docs.google.com/document/d/1UEeHIvhaaA9IXMhYLDiJtD_8RNBqZmoh3kJ09GH3DrY/edit?usp=sharing)
+
+Click [here](https://docs.google.com/document/d/1UEeHIvhaaA9IXMhYLDiJtD_8RNBqZmoh3kJ09GH3DrY/edit?usp=sharing) to access the API Endpoints documentation for this project and how to run them.
