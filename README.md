@@ -24,6 +24,33 @@ You can start the project with below commands:
 2. **`go run main.go`**
 
 ## API Tests
-You can use postman for API Endpoints tests.
+You can use postman for API Endpoints tests. Here are some examples of endpoint tests:
 
-Click [here](https://docs.google.com/document/d/1UEeHIvhaaA9IXMhYLDiJtD_8RNBqZmoh3kJ09GH3DrY/edit?usp=sharing) to access the API Endpoints documentation for this project and how to run them.
+#### Signup Endpoint
+
+Here is an example of a succesful signup request and response:
+![Signup Endpoint](docs/images/signup.png)
+
+#### Login Endpoint
+
+An example of a susccefull login:
+![Login Endpoint](docs/images/login.png)
+
+#### Add to Cart Endpoint
+
+This images shows adding a product for viewing:
+![Add product endpoint](docs/images/addproduct.png)
+
+#### Product view
+
+This images shows an already added product:
+![view product Endpoint](docs/images/productview.png)
+
+#### Search product
+
+This image shows the product after searching it:
+![search product Endpoint](docs/images/searchprod.png)
+
+
+
+Click [here](https://docs.google.com/document/d/1UEeHIvhaaA9IXMhYLDiJtD_8RNBqZmoh3kJ09GH3DrY/edit?usp=sharing) to access all the API Endpoints documentation for this project and how to run them.
