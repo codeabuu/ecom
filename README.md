@@ -15,13 +15,13 @@ This GoLang project implements a robust backend system for an e-commerce applica
   * Users can view product details and search for specific items. (Full product management might be implemented in a separate microservice)
   
 ## How To Run
-Make sure that your MongoDB username, password &URI is set in your .env file at the root directory of this project.
+Make sure that your MongoDB username, password &URI is set in your `.env` file at the root directory of this project.
 
 You can start the project with below commands:
 
-**1. docker-compose up -d**
+1. **`docker-compose up -d`**
 
-**2. go run main.go**
+2. **`go run main.go`**
 
 ## API Tests
 You can use postman for API Endpoints tests.
